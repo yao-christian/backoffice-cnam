@@ -1,0 +1,55 @@
+import { CustomError } from "@/utils/errors";
+import { formatPaginatedData } from "@/components/utils/pagination";
+import { prisma } from "@/lib/prisma";
+import { USER_ROLES } from "@/features/user/user.constant";
+import { SELLER_SELECT } from "./seller.type";
+import { getAuthSession } from "@/lib/auth/auth-session";
+
+export async function getSellersWithPagination({ page = 0, perPage = 10 }) {
+  const session = await getAuthSession();
+
+  if (!session?.user?.email) {
+    throw new CustomError("Erreur lors de la récupération des vendeurs");
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { role: { select: { code: true } } },
+    });
+
+    if (
+      !user ||
+      ![USER_ROLES.superAdmin.code, USER_ROLES.admin.code].includes(
+        user.role.code,
+      )
+    ) {
+      throw new CustomError("Aucune permission");
+    }
+
+    // Exécution des requêtes en parallèle avec prisma.$transaction
+    const [sellers, totalCount] = await prisma.$transaction([
+      prisma.user.findMany({
+        where: { role: { code: USER_ROLES.seller.code } },
+        skip: page * perPage,
+        take: perPage,
+        orderBy: { createdAt: "desc" },
+        select: SELLER_SELECT,
+      }),
+      prisma.user.count({
+        where: { role: { code: USER_ROLES.seller.code } },
+      }),
+    ]);
+
+    return formatPaginatedData({
+      totalCount,
+      totalPages: Math.ceil(totalCount / perPage),
+      page,
+      perPage,
+      data: sellers,
+    });
+  } catch (error) {
+    console.log(error);
+    throw Error("Erreur lors de la récupération des vendeurs");
+  }
+}
