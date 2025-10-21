@@ -1,52 +1,74 @@
-import { CustomError } from "@/utils/errors";
+import {
+  HttpError,
+  NotFoundError,
+  UserNotAuthenticatedError,
+} from "@/utils/errors";
+
+import { customFetch } from "@/components/utils/custom-fetch";
+import { ApiResponse } from "@/types/api";
+
+import { AuditsListSchema } from "./schemas/api.schemas";
+
+import { Audit } from "./audit.type";
 import { formatPaginatedData } from "@/components/utils/pagination";
-import { prisma } from "@/lib/prisma";
-import { USER_ROLES } from "@/features/user/user.constant";
-import { AUDIT_LOG_SELECT } from "./audit.type";
-import { getAuthSession } from "@/lib/auth/auth-session";
+import { ApiPaginationSchema } from "@/utils/api-utils";
 
 export async function getAuditsWithPagination({ page = 0, perPage = 10 }) {
-  const session = await getAuthSession();
-
-  if (!session?.user?.email) {
-    throw new CustomError("Erreur lors de la récupération Journal d'audit");
-  }
+  const apiPage = page + 1;
+  const url = `${process.env.API_URL}/api/audit/list?page=${apiPage}&limit=${perPage}`;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { role: { select: { code: true } } },
-    });
+    const response = await customFetch(url, { isAuth: true });
 
-    if (
-      user &&
-      [USER_ROLES.superAdmin.code, USER_ROLES.admin.code].includes(
-        user.role.code,
-      )
-    ) {
-      // Exécution des requêtes en parallèle avec prisma.$transaction
-      const [audits, totalCount] = await prisma.$transaction([
-        prisma.auditLog.findMany({
-          skip: page * perPage,
-          take: perPage,
-          orderBy: { timestamp: "desc" },
-          select: AUDIT_LOG_SELECT,
-        }),
-        prisma.auditLog.count(),
-      ]);
+    if (!response.ok) {
+      if (response.status === 401) throw new UserNotAuthenticatedError();
+      if (response.status === 404)
+        throw new NotFoundError("Liste des audits introuvable.");
 
-      return formatPaginatedData({
-        totalCount,
-        totalPages: Math.ceil(totalCount / perPage),
-        page,
-        perPage,
-        data: audits,
-      });
+      throw HttpError.fromResponse(response);
     }
 
-    throw new CustomError("Aucune permission");
-  } catch (error) {
-    console.log(error);
-    throw Error("Erreur lors de la récupération du Journal d'audit");
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      throw new HttpError(
+        "Réponse invalide du serveur (format non JSON).",
+        502,
+        "HTTP_ERROR",
+      );
+    }
+
+    const responseData: ApiResponse<unknown> = await response.json();
+
+    if (responseData.status !== "success") {
+      throw new HttpError(
+        responseData.message ||
+          "Impossible de récupérer les audits. Veuillez réessayer plus tard.",
+        422,
+        "APPLICATION_ERROR",
+      );
+    }
+
+    const parsedResponseData = ApiPaginationSchema.parse(responseData.data);
+
+    const Audits = AuditsListSchema.parse(parsedResponseData.data);
+
+    const totalCount = parsedResponseData.total;
+    const totalPages = parsedResponseData.lastPage;
+
+    return formatPaginatedData<Audit>({
+      totalCount,
+      totalPages,
+      page,
+      perPage: parsedResponseData.perPage,
+      data: Audits,
+    });
+  } catch (error: any) {
+    console.error("Erreur dans getAuditsWithPagination:", error);
+
+    if (error instanceof HttpError) throw error;
+
+    throw new HttpError("Erreur inattendue du client.", 500, "HTTP_ERROR", {
+      cause: error,
+    });
   }
 }

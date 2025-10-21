@@ -1,28 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import type { ProfileUser } from "@/features/profile/profile.type";
-import { UpdateProfile } from "./_update/form";
 import { useAction } from "next-safe-action/hooks";
 import { resetPassword } from "./profile.action";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
+import { AuthSession } from "@/features/auth/auth.types";
 
-type Props = { profile: ProfileUser };
+type Props = { profile: AuthSession };
 
 export default function ProfileInfo({ profile }: Props) {
   const [sending, setSending] = useState(false);
   const router = useRouter();
 
   const fullName =
-    [profile.firstName, profile.lastName].filter(Boolean).join(" ").trim() ||
-    profile.email;
+    [profile.user.lastName, profile.user.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim() || profile.user.email;
 
-  const avatarUrl =
-    profile.photoUrl ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0D8ABC&color=fff&size=128`;
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0D8ABC&color=fff&size=128`;
 
   const sendEmailVerification = async () => {
     try {
@@ -31,11 +30,11 @@ export default function ProfileInfo({ profile }: Props) {
       const res = await fetch("/api/auth/send-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: profile.email }),
+        body: JSON.stringify({ email: profile.user.email }),
       });
       if (!res.ok)
         throw new Error("Impossible d'envoyer le lien de vérification");
-      alert(`Un lien de vérification a été envoyé à ${profile.email}`);
+      alert(`Un lien de vérification a été envoyé à ${profile.user.email}`);
     } catch (e: any) {
       alert(e?.message ?? "Échec de l'envoi");
     } finally {
@@ -47,16 +46,13 @@ export default function ProfileInfo({ profile }: Props) {
     onSuccess: ({ data }) => {
       if (data) {
         toast.success(data.message, { position: "bottom-right" });
-        router.push(`/profile/new-password?email=${profile.email}`);
+        router.push(`/profile/new-password?email=${profile.user.email}`);
       }
     },
     onError: (error) => {
       toast.error(error.error.serverError, { position: "bottom-right" });
     },
   });
-
-  const isSeller = profile.role.code === "SELLER";
-  const isEmailVerified = Boolean(profile.emailVerified);
 
   return (
     <div className="p-6">
@@ -71,7 +67,7 @@ export default function ProfileInfo({ profile }: Props) {
 
         <div className="flex-grow text-center md:text-left">
           <h2 className="mb-2 text-2xl font-semibold">{fullName}</h2>
-          <p className="mb-4 text-gray-600">{profile.email}</p>
+          <p className="mb-4 text-gray-600">{profile.user.email}</p>
 
           <div className="flex flex-wrap justify-center gap-2 md:justify-start">
             {/* Rôle */}
@@ -79,29 +75,9 @@ export default function ProfileInfo({ profile }: Props) {
               Rôle: {profile.role.name}
             </span>
 
-            {/* Vérification email */}
-            {isEmailVerified ? (
-              <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
-                Email vérifié
-              </span>
-            ) : (
-              <>
-                <span className="rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">
-                  Email non vérifié
-                </span>
-                <button
-                  onClick={sendEmailVerification}
-                  className="font-semibold uppercase text-blue-600 hover:text-blue-800 disabled:text-blue-400"
-                  disabled={sending}
-                >
-                  Vérifier {sending && <span>…</span>}
-                </button>
-              </>
-            )}
-
             {/* Badge vendeur/administration */}
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-800">
-              {isSeller ? "Vendeur" : "Administration"}
+              {profile.role.name}
             </span>
           </div>
         </div>
@@ -115,48 +91,23 @@ export default function ProfileInfo({ profile }: Props) {
           </h3>
           <InfoRow
             label="Nom prénoms :"
-            value={`${profile.lastName} ${profile.firstName ?? ""}`}
+            value={`${profile.user.lastName ?? ""} ${profile.user.firstName ?? ""}`}
           />
           <InfoRow
             label="Numéro de téléphone :"
-            value={profile.phoneNumber ?? "—"}
+            value={profile.user.phone ?? "—"}
           />
-          <InfoRow label="Email :" value={profile.email} />
-        </div>
-
-        {/* Bloc vendeur (si applicable) */}
-        <div className="space-y-4">
-          <h3 className="mb-2 text-lg font-semibold">Compte vendeur</h3>
-          {isSeller && profile.seller ? (
-            <>
-              <InfoRow
-                label="Code vendeur :"
-                value={profile.seller.sellerCode}
-              />
-              <InfoRow
-                label="Solde :"
-                value={formatXof(profile.seller.balance)}
-              />
-              <InfoRow
-                label="Point de vente :"
-                value={profile.seller.hasPointOfSale ? "Oui" : "Non"}
-              />
-            </>
-          ) : (
-            <p className="text-sm text-gray-500">
-              Aucun compte vendeur associé.
-            </p>
-          )}
+          <InfoRow label="Email :" value={profile.user.email} />
         </div>
       </div>
 
       <hr className="my-6" />
 
-      <div className="flex flex-col-reverse items-center justify-between gap-4 sm:flex-row">
+      {/* <div className="flex flex-col-reverse items-center justify-between gap-4 sm:flex-row">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <Button
             variant={"link"}
-            onClick={() => executeResetPassword(profile.email)}
+            onClick={() => executeResetPassword(profile.user.email)}
             disabled={status === "executing"}
             className="font-semibold text-blue-600 underline hover:text-blue-800"
           >
@@ -164,11 +115,7 @@ export default function ProfileInfo({ profile }: Props) {
             {status === "executing" && <Loader />}
           </Button>
         </div>
-
-        <div className="flex gap-2">
-          <UpdateProfile profile={profile} />
-        </div>
-      </div>
+      </div> */}
     </div>
   );
 }

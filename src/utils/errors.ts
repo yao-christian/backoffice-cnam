@@ -1,4 +1,3 @@
-// utils/errors/base-error.ts
 export type ErrorKind =
   | "UNKNOWN_ERROR"
   | "HTTP_ERROR"
@@ -18,7 +17,7 @@ export interface BaseErrorOptions {
   kind?: ErrorKind;
   isOperational?: boolean;
   cause?: unknown;
-  statusCode?: number; // optionnel ici (HttpError l’imposera)
+  statusCode?: number;
 }
 
 export class BaseError extends Error {

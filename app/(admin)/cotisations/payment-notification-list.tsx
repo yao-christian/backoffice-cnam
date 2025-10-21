@@ -11,8 +11,8 @@ import { Card } from "@/components/ui/card";
 import { getPaymentNotifications } from "./requests";
 import { DataTable, useDataTable } from "@/components/ui/data-table";
 import { buttonVariants } from "@/components/ui/button";
-import { formatAmount } from "@/lib/utils";
 import { PaymentNotification } from "@/features/payment-notification/payment-notification.type";
+import { formatAmount } from "@/utils/number-utils";
 
 interface PropsType {
   data: PaginatedData<PaymentNotification>;
