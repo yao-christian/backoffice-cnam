@@ -1,45 +1,62 @@
 "use server";
 
 import { z } from "zod";
-import { CustomError } from "@/utils/errors";
-
-import { prisma } from "@/lib/prisma";
 
 import { action } from "@/lib/safe-action";
 import { NewPasswordSchema } from "./schema";
-import { bcryptHash } from "@/components/utils/bcrypt";
 
 import {
+  initPasswordByOtp,
   sendPasswordResetOtp,
   verifyPasswordResetOtp,
 } from "@/features/auth/otp.service";
 
+import { BaseError, HttpError } from "@/utils/errors";
+
 export const resetPasswordAction = action
   .schema(NewPasswordSchema)
-  .action(async ({ parsedInput: { password, otp } }) => {
+  .action(async ({ parsedInput }) => {
+    const { email, otp, password, confirmPassword } = parsedInput;
+
     try {
-      const { email, id } = await verifyPasswordResetOtp(otp);
+      // 1) Vérifier le code OTP
+      await verifyPasswordResetOtp(email, otp);
 
-      const existingUser = await prisma.user.findUnique({
-        where: { email: email },
+      // 2) Initialiser / réinitialiser le mot de passe
+      await initPasswordByOtp({
+        email,
+        otp,
+        password,
+        passwordConfirmation: confirmPassword,
       });
 
-      if (!existingUser) {
-        throw new CustomError("Cet email n'existe pas!");
+      return {
+        ok: true as const,
+        message: "Mot de passe modifié avec succès.",
+      };
+    } catch (err) {
+      // Normalisation d’erreur (tu peux aussi laisser l’exception remonter si safe-action gère)
+      if (err instanceof HttpError) {
+        return {
+          ok: false as const,
+          message: err.message,
+          status: err.statusCode,
+          kind: err.kind,
+        };
       }
-
-      const hashPassword = await bcryptHash(password);
-
-      await prisma.user.update({
-        where: { id: existingUser.id },
-        data: {
-          password: hashPassword,
-        },
-      });
-
-      return { message: "Mot de passe modifié avec succès" };
-    } catch (error) {
-      throw error;
+      if (err instanceof BaseError) {
+        return {
+          ok: false as const,
+          message: err.message,
+          status: err.statusCode ?? 500,
+          kind: err.kind,
+        };
+      }
+      return {
+        ok: false as const,
+        message:
+          "Erreur inattendue lors de la réinitialisation du mot de passe.",
+      };
     }
   });
 

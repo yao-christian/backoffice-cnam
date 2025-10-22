@@ -3,7 +3,6 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().min(1),
     UPLOAD_DIR: z.string().min(1),
     STORAGE_TYPE: z.string().min(1),
 
@@ -14,11 +13,7 @@ export const env = createEnv({
     SENDER_EMAIL: z.string().min(1),
     RECIPIENT_EMAIL: z.string().min(1),
 
-    // Next AUth
-    AUTH_SECRET: z.string().min(10),
-    AUTH_TRUST_HOST: z.string().min(1),
-    OAUTH_CLIENT_ID: z.string().min(1),
-    OAUTH_CLIENT_SECRET: z.string().min(1),
+    // API
     API_URL: z.string().min(1),
   },
   client: {

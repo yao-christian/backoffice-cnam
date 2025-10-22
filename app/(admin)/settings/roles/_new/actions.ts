@@ -3,7 +3,7 @@
 import { authAction } from "@/lib/safe-action";
 import { HttpError } from "@/utils/errors";
 import { customFetch } from "@/components/utils/custom-fetch";
-import { CreateRoleSchema } from "@/features/roles/schemas/role.schemas";
+import { CreateRoleSchema } from "@/features/role/schemas/role.schemas";
 
 export const createRoleAction = authAction
   .schema(CreateRoleSchema)

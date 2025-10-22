@@ -3,10 +3,10 @@
 import { authAction } from "@/lib/safe-action";
 import { HttpError } from "@/utils/errors";
 import { customFetch } from "@/components/utils/custom-fetch";
-import { UpdateRoleSchema } from "@/features/role/schemas/role.schemas";
+import { UpdateClaimPatternSchema } from "@/features/claim-pattern/schemas/claim-pattern.schema";
 
-export const updateServiceAction = authAction
-  .schema(UpdateRoleSchema)
+export const updateClaimPatternAction = authAction
+  .schema(UpdateClaimPatternSchema)
   .action(async ({ parsedInput: values }) => {
     try {
       const payload = {
@@ -14,7 +14,7 @@ export const updateServiceAction = authAction
         status: values.status ? 1 : 0,
       };
       const res = await customFetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/role/update/${values.uuid}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/motif/update/${values.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

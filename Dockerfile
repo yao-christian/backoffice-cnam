@@ -16,11 +16,6 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Exécution des commandes Prisma
-RUN npx prisma generate
-# RUN npx prisma migrate deploy
-RUN npx prisma db push
-# RUN npx prisma db seed
 
 # Build de l'application
 RUN npm run build
@@ -32,7 +27,7 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Librairies runtime utiles pour Prisma
+# Librairies runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*

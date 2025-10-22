@@ -1,45 +1,70 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Download, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import * as XLSX from "xlsx";
 
 import { PaginatedData } from "@/components/utils/pagination";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { getServices } from "./requests";
-import { formatDateWithHour } from "@/lib/date";
+import { getClaimPatterns } from "./requests";
 import { DataTable, useDataTable } from "@/components/ui/data-table";
-import { buttonVariants } from "@/components/ui/button";
-import { CreateService } from "./_new/form";
-import { Service } from "@/features/service/service.type";
-import { UpdateService } from "./_update/form";
-// import { ChangeServiceStatus } from "./_change-status";
 import { Badge } from "@/components/ui/badge";
+import { ClaimPattern } from "@/features/claim-pattern/claim-pattern.type";
+import { CreateClaimPattern } from "./_new/form";
+import { UpdateClaimPattern } from "./_update/form";
+import { formatDateWithHour } from "@/lib/date";
 
 interface PropsType {
-  data: PaginatedData<Service>;
+  data: PaginatedData<ClaimPattern>;
 }
 
-export function ServiceList({ data }: PropsType) {
+export function ClaimPatternList({ data }: PropsType) {
   const [dataState, setDataState] = useState(data);
   const [isLoading, setIsLoading] = useState(false);
 
-  const columns = useMemo<ColumnDef<Service>[]>(
+  const statusMeta: Record<number, { label: string; className: string }> = {
+    0: { label: "En cours", className: "bg-sky-500 text-white" }, // IN_PROGRESS
+    1: { label: "En attente", className: "bg-amber-500 text-white" }, // PENDING
+    2: { label: "Résolue", className: "bg-green-600 text-white" }, // RESOLVED
+    3: { label: "Fermée", className: "bg-slate-400 text-white" }, // CLOSED
+    7: { label: "Initiée", className: "bg-violet-500 text-white" }, // INITIATED
+  };
+
+  const toDateSafe = (value?: string | null): Date | null => {
+    if (!value) return null;
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const columns = useMemo<ColumnDef<ClaimPattern>[]>(
     () => [
-      { accessorKey: "code", header: "Code" },
-      { accessorKey: "name", header: "Nom" },
       {
-        id: "prepaid",
-        header: "Prepayé",
+        accessorKey: "label",
+        header: "Libellé",
+      },
+      {
+        accessorKey: "status",
+        header: "Statut",
         enableHiding: false,
         cell: ({ row }) => {
-          const service = row.original;
-          return service.prepaid ? (
-            <Badge>Prepayé</Badge>
-          ) : (
-            <Badge variant="secondary">Postpayé</Badge>
+          const s = row.original.status ?? undefined;
+          if (s === undefined || !(s in statusMeta)) {
+            return <Badge variant="secondary">—</Badge>;
+          }
+          const meta = statusMeta[s as keyof typeof statusMeta];
+          return <Badge className={meta.className}>{meta.label}</Badge>;
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Date",
+        cell: ({ row }) => {
+          const claimPattern = row.original;
+
+          const d = toDateSafe(claimPattern.createdAt);
+          return (
+            <span>{d ? formatDateWithHour(d, "dd/MM/yyyy HH:mm") : "—"}</span>
           );
         },
       },
@@ -48,12 +73,10 @@ export function ServiceList({ data }: PropsType) {
         header: "Actions",
         enableHiding: false,
         cell: ({ row }) => {
-          const service = row.original;
-
+          const claimPattern = row.original;
           return (
             <div className="flex items-center gap-x-2">
-              <UpdateService service={service} />
-              {/* <ChangeServiceStatus service={service} /> */}
+              <UpdateClaimPattern claimPattern={claimPattern} />
             </div>
           );
         },
@@ -78,7 +101,7 @@ export function ServiceList({ data }: PropsType) {
     const getData = async () => {
       setIsLoading(true);
 
-      const res = await getServices({
+      const res = await getClaimPatterns({
         page: pageIndex,
         perPage: pageSize,
       });
@@ -89,25 +112,6 @@ export function ServiceList({ data }: PropsType) {
 
     getData();
   }, [pageIndex, pageSize, data]);
-
-  // Fonction pour télécharger en XLSX
-  const downloadXLSX = () => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      dataState.data.map((service) => ({
-        Code: service.code,
-        Nom: service.name,
-        Prepayé: service.prepaid ? "Oui" : "Non",
-        "Date de creation": formatDateWithHour(new Date(service.createdAt)),
-      })),
-    );
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Liste des vendeurs 10 premiers vendeurs",
-    );
-    XLSX.writeFile(workbook, "liste-vendeur.xlsx");
-  };
 
   return (
     <>
@@ -129,13 +133,7 @@ export function ServiceList({ data }: PropsType) {
 
       <Card className="p-5">
         <div className="items-center justify-between border-b border-gray-300 xl:flex xl:p-2">
-          <div className="h-14">{<CreateService />}</div>
-
-          <div className="flex h-14 justify-between gap-2 xl:justify-end xl:gap-4">
-            <button className={buttonVariants()} onClick={downloadXLSX}>
-              Télécharger XLSX <Download className="ml-2 h-4 w-4" />
-            </button>
-          </div>
+          <div className="h-14">{<CreateClaimPattern />}</div>
         </div>
         <DataTable table={table} columns={columns} isLoading={isLoading} />
       </Card>

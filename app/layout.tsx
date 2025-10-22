@@ -20,8 +20,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Backoffice Module prépayé",
-  description: "Gestion des prépayés",
+  title: "Backoffice CNAM",
 };
 
 export default async function RootLayout({

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { BaseError, HttpError, ValidationError } from "@/utils/errors";
 
 import { jsonError } from "@/utils/next-api-utils";
-import { getRolesWithPagination } from "@/features/role/role-list.service";
+import { getClaimsWithPagination } from "@/features/claim/claim-list.service";
 
 export async function GET(request: NextRequest) {
   // 1) Parse et valide les query params
@@ -25,16 +25,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 2) Appel role (peut jeter HttpError / ValidationError)
-    const data = await getRolesWithPagination({ page, perPage });
+    // 2) Appel Claim (peut jeter HttpError / ValidationError)
+    const data = await getClaimsWithPagination({ page, perPage });
 
     // 3) Réponse succès
     return NextResponse.json(
-      { status: "success", message: "Liste des roles", data },
+      { status: "success", message: "Liste des réclamations", data },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (error) {
-    console.error("GET /api/roles error:", error);
+    console.error("GET /api/Claims error:", error);
 
     // 4) Erreurs applicatives déjà normalisées en HttpError
     if (error instanceof ValidationError) {

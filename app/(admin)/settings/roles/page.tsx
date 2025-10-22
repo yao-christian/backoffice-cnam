@@ -1,5 +1,5 @@
 import { RoleList } from "./role-list";
-import { getRolesWithPagination } from "@/features/roles/role-list.service";
+import { getRolesWithPagination } from "@/features/role/role-list.service";
 
 export default async function RolesPage() {
   const data = await getRolesWithPagination({});

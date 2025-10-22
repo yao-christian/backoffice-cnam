@@ -29,8 +29,8 @@ import { toast } from "react-toastify";
 import {
   CreateRoleInput,
   CreateRoleSchema,
-} from "@/features/roles/schemas/role.schemas";
-import { ACTIONS, MENUS } from "@/features/roles/permissions.const";
+} from "@/features/role/schemas/role.schemas";
+import { ACTIONS, MENUS } from "@/features/role/permissions.const";
 import { Textarea } from "@/components/ui/textarea";
 
 export function CreateRole() {

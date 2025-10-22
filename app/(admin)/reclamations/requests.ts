@@ -1,13 +1,13 @@
 import { PaginatedData } from "@/components/utils/pagination";
-import { Role } from "@/features/role/role.type";
+import { Claim } from "@/features/claim/claim.type";
 import { HttpError } from "@/utils/errors";
 import { fetchJson } from "@/utils/fetch-utils";
 import { ApiErrorEnvelopeSchema } from "@/utils/next-api-utils";
 
 type GetParams = { page: number; perPage?: number };
 
-export const getRoles = async ({ page, perPage }: GetParams) => {
-  const url = `/api/roles?page=${page}&perPage=${perPage}`;
+export const getClaims = async ({ page, perPage }: GetParams) => {
+  const url = `/api/claims?page=${page}&perPage=${perPage}`;
 
   const body = await fetchJson(url, {
     method: "GET",
@@ -17,7 +17,7 @@ export const getRoles = async ({ page, perPage }: GetParams) => {
   const status = body?.status as string | undefined;
 
   if (status === "success") {
-    return body.data as PaginatedData<Role>;
+    return body.data as PaginatedData<Claim>;
   }
 
   const err = ApiErrorEnvelopeSchema.safeParse(body);

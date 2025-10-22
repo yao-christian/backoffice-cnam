@@ -24,12 +24,12 @@ import { updateServiceAction } from "./actions";
 import { useModalStore } from "@/components/global-modal/store";
 import { toast } from "react-toastify";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Role } from "@/features/roles/role.type";
-import { ACTIONS, MENUS } from "@/features/roles/permissions.const";
+import { Role } from "@/features/role/role.type";
+import { ACTIONS, MENUS } from "@/features/role/permissions.const";
 import {
   UpdateRoleInput,
   UpdateRoleSchema,
-} from "@/features/roles/schemas/role.schemas";
+} from "@/features/role/schemas/role.schemas";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 

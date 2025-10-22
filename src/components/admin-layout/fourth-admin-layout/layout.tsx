@@ -138,10 +138,6 @@ export function FourthAdminLayout({
     );
   };
 
-  const logout = async () => {
-    // logoutAction();
-  };
-
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden bg-[hsl(var(--content-background))]">
@@ -199,11 +195,13 @@ export function FourthAdminLayout({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
+                    asChild
                     className="cursor-pointer text-red-600"
-                    onClick={logout}
                   >
-                    <LogOut className="mr-2 size-4" />
-                    Se déconnecter
+                    <Link href="/api/auth/logout">
+                      <LogOut className="mr-2 size-4" />
+                      Se déconnecter
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

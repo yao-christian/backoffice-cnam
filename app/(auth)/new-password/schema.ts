@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const NewPasswordSchema = z
   .object({
+    email: z.string().email(),
     otp: z
       .string()
       .length(4, { message: "Le code OTP doit contenir 4 chiffres" })

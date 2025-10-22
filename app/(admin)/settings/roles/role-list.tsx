@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { getRoles } from "./requests";
 import { DataTable, useDataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
-import { Role } from "@/features/roles/role.type";
+import { Role } from "@/features/role/role.type";
 import { CreateRole } from "./_new/form";
 import { UpdateRole } from "./_update/form";
 

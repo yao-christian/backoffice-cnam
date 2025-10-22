@@ -31,14 +31,10 @@ cd module-prepaye
 ### Étapes de déploiement
 
 Utiliser le fichier Dockerfile pour le déploiement.
-La commande `npx prisma migrate deploy` est utiliser pour executer les migrations
 
 ## Configuration pour le déploiement
 
 Pour déployer l'application dans un environnement de production, vous devrez ajuster les variables d'environnement dans le fichier `.env` pour qu'elles correspondent aux configurations de production.
 Utilise comme modèle `.env.example`.
 
-## NB
-
-La commande `npx prisma db seed` dans le dockerfile doit être lancer une seule fois, c'est à dire lors de la création de la base de données.
 # backoffice-cnam

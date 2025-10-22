@@ -109,7 +109,7 @@ export default function NewPasswordForm() {
               name="otp"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Code OTP 2</FormLabel>
+                  <FormLabel>Code OTP</FormLabel>
                   <FormControl>
                     <InputOTP
                       maxLength={4}
