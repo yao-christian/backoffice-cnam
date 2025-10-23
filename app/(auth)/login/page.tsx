@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 
 import LoginForm from "./form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Suspense } from "react";
 
 enum Error {
   Configuration = "Configuration",
@@ -18,7 +19,7 @@ const errorMap = {
   ),
 };
 
-export default function LoginPage() {
+function LoginPageContent() {
   const search = useSearchParams();
   const error = search.get("error") as Error;
 
@@ -47,5 +48,13 @@ export default function LoginPage() {
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

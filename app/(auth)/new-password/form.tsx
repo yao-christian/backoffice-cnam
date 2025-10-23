@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CheckCircleIcon, Eye, EyeOff, TriangleAlertIcon } from "lucide-react";
 import Link from "next/link";
@@ -37,7 +37,7 @@ import { toast } from "react-toastify";
 
 type NewPasswordFormInput = z.input<typeof NewPasswordSchema>;
 
-export default function NewPasswordForm() {
+function NewPasswordForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const router = useRouter();
@@ -240,5 +240,13 @@ export default function NewPasswordForm() {
         </Button>
       </div>
     </>
+  );
+}
+
+export default function NewPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewPasswordForm />
+    </Suspense>
   );
 }

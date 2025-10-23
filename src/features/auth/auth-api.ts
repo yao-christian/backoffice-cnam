@@ -1,3 +1,5 @@
+import { env } from "@/lib/env";
+
 type OAuthTokenResponse = {
   access_token: string;
   token_type: string;
@@ -16,9 +18,9 @@ class APIServer {
   private clientSecret: string;
 
   constructor() {
-    this.baseUrl = process.env.API_URL || "";
-    this.clientId = process.env.OAUTH_CLIENT_ID || "";
-    this.clientSecret = process.env.OAUTH_CLIENT_SECRET || "";
+    this.baseUrl = env.API_URL;
+    this.clientId = env.OAUTH_CLIENT_ID;
+    this.clientSecret = env.OAUTH_CLIENT_SECRET;
   }
 
   // Étape 1 : Obtenir l'access_token OAuth (SERVEUR UNIQUEMENT)

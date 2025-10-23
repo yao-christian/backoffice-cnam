@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 import { LayoutParams } from "@/types/next";
 
 import { GlobalAlertDialog } from "@/components/global-alert-dialog";

@@ -10,7 +10,7 @@ export function setAuthToken(token: string) {
   const cookieStore = cookies();
   cookieStore.set(TOKEN_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7, // 7 jours
     path: "/",
@@ -31,7 +31,7 @@ export function setUserSession(userSession: string) {
   const cookieStore = cookies();
   cookieStore.set(USER_SESSION_COOKIE_NAME, userSession, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7, // 7 jours
     path: "/",
@@ -50,6 +50,7 @@ export function removeUserSession() {
 
 export function isAuthenticated(): boolean {
   const token = getAuthToken();
+
   return !!token;
 }
 

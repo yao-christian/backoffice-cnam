@@ -15,6 +15,8 @@ export const env = createEnv({
 
     // API
     API_URL: z.string().min(1),
+    OAUTH_CLIENT_ID: z.string().min(1),
+    OAUTH_CLIENT_SECRET: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_BASE_URL: z.string().url(),
