@@ -1,61 +1,70 @@
 import { z } from "zod";
 
-/** Item brut renvoyé par l’API */
-export const ApiPaymentNotificationItemSchema = z.object({
-  id: z.number().int(),
-  order_id: z.string(),
-  msisdn: z.string().nullable(),
-  amount: z.number(), // si l’API renvoie string, fais z.coerce.number()
-  momo_id: z.string(),
-  service_id: z.number().nullable(),
-  service_name: z.string().nullable(),
-  delivered: z.boolean(),
-  payment_status: z.boolean(),
-  created_at: z.string(), // "YYYY-MM-DD HH:mm:ss.SSSSSS"
-  updated_at: z.string(),
-});
+/** Élément brut renvoyé par l’API -> transformé en modèle de domaine (camelCase) */
+export const PaymentNotificationApiResponseSchema = z
+  .object({
+    id: z.number().catch(0),
+    order_id: z.string().nullable().optional().catch(""),
+    msisdn: z.string().nullable().optional().catch(null),
 
-/** Pagination brute renvoyée par l’API (champ "data") */
-export const ApiPaginationSchema = z.object({
-  current_page: z.number().int().positive(), // 1-based
-  data: z.array(ApiPaymentNotificationItemSchema),
-  per_page: z.number().int().positive(),
-  total: z.number().int().nonnegative(),
-  last_page: z.number().int().positive(),
-});
+    // L’API peut renvoyer un nombre ou une string → on force vers number
+    amount: z.coerce.number().catch(0),
 
-/** Modèle de domaine (camelCase) ; on s’affranchit de la forme API */
-export const PaymentNotificationSchema = z.object({
-  id: z.number().int(),
-  orderId: z.string(),
-  msisdn: z.string().nullable(),
-  amount: z.number(),
-  momoId: z.string(),
-  serviceId: z.number().nullable(),
-  serviceName: z.string().nullable(),
-  delivered: z.boolean(),
-  paymentStatus: z.boolean(),
-  createdAt: z.string(), // tu peux transformer en ISO si tu veux
-  updatedAt: z.string(),
-});
+    momo_id: z.string().nullable().optional().catch(""),
+    service_id: z.number().nullable().optional().catch(null),
+    service_name: z.string().nullable().optional().catch(null),
 
-type PaymentNotification = z.infer<typeof PaymentNotificationSchema>;
+    // Si jamais l’API renvoie 0/1, on normalise en bool dans le transform
+    delivered: z
+      .union([z.boolean(), z.number(), z.string()])
+      .optional()
+      .catch(false),
+    payment_status: z
+      .union([z.boolean(), z.number(), z.string()])
+      .optional()
+      .catch(false),
 
-/** Adaptateur : API -> Domaine */
-export function adaptPaymentNotification(
-  item: z.infer<typeof ApiPaymentNotificationItemSchema>,
-): PaymentNotification {
-  return {
-    id: item.id,
-    orderId: item.order_id,
-    msisdn: item.msisdn,
-    amount: item.amount,
-    momoId: item.momo_id,
-    serviceId: item.service_id,
-    serviceName: item.service_name,
-    delivered: item.delivered,
-    paymentStatus: item.payment_status,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
-  };
-}
+    created_at: z.string().nullable().optional().catch(""),
+    updated_at: z.string().nullable().optional().catch(""),
+  })
+  .transform((item) => {
+    const toBool = (v: unknown): boolean => {
+      if (typeof v === "boolean") return v;
+      if (typeof v === "number") return v === 1;
+      if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+      return false;
+    };
+
+    return {
+      id: item.id ?? 0,
+      orderId: item.order_id ?? "",
+      msisdn: item.msisdn ?? null,
+      amount: item.amount ?? 0,
+      momoId: item.momo_id ?? "",
+      serviceId: item.service_id ?? null,
+      serviceName: item.service_name ?? null,
+      delivered: toBool(item.delivered),
+      paymentStatus: toBool(item.payment_status),
+      // Tu peux convertir en ISO ici si besoin (ex: new Date(item.created_at!).toISOString())
+      createdAt: item.created_at ?? "",
+      updatedAt: item.updated_at ?? "",
+    };
+  })
+  .catch({
+    id: 0,
+    orderId: "",
+    msisdn: null,
+    amount: 0,
+    momoId: "",
+    serviceId: null,
+    serviceName: null,
+    delivered: false,
+    paymentStatus: false,
+    createdAt: "",
+    updatedAt: "",
+  });
+
+/** Liste simple */
+export const PaymentNotificationsListSchema = z
+  .array(PaymentNotificationApiResponseSchema)
+  .catch([]);

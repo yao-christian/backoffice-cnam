@@ -15,8 +15,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { CreateService } from "./_new/form";
 import { Service } from "@/features/service/service.type";
 import { UpdateService } from "./_update/form";
-// import { ChangeServiceStatus } from "./_change-status";
+import { ChangeServiceStatus } from "./_change-status";
 import { Badge } from "@/components/ui/badge";
+import { DeleteService } from "./_delete";
 
 interface PropsType {
   data: PaginatedData<Service>;
@@ -53,7 +54,8 @@ export function ServiceList({ data }: PropsType) {
           return (
             <div className="flex items-center gap-x-2">
               <UpdateService service={service} />
-              {/* <ChangeServiceStatus service={service} /> */}
+              <DeleteService service={service} />
+              <ChangeServiceStatus service={service} />
             </div>
           );
         },

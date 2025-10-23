@@ -12,6 +12,8 @@ import { DataTable, useDataTable } from "@/components/ui/data-table";
 import { buttonVariants } from "@/components/ui/button";
 import { Duplicata } from "@/features/duplicata/duplicata.type";
 import { getDuplicatas } from "./requests";
+import { formatAmount } from "@/utils/number-utils";
+import { formatDateWithHour } from "@/lib/date";
 
 interface PropsType {
   data: PaginatedData<Duplicata>;
@@ -28,7 +30,7 @@ export function DuplicataList({ data }: PropsType) {
         header: "Date",
         cell: ({ row }) => {
           const d = row.original;
-          // return formatDateWithHour(d.createdAt);
+          return formatDateWithHour(d.createdAt);
         },
       },
       {
@@ -56,7 +58,7 @@ export function DuplicataList({ data }: PropsType) {
         header: "Montant",
         cell: ({ row }) => (
           <div className="flex items-center text-sm">
-            {/* {formatAmount(row.original.amount)} */}
+            {formatAmount(row.original.amount)}
           </div>
         ),
       },

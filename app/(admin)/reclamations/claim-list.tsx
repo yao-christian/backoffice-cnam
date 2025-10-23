@@ -13,7 +13,7 @@ import { formatDateWithHour } from "@/lib/date";
 import { DataTable, useDataTable } from "@/components/ui/data-table";
 import { buttonVariants } from "@/components/ui/button";
 import { Claim } from "@/features/claim/claim.type";
-// import { UpdateClaim } from "./_update/form";
+import { UpdateClaim } from "./_update/form";
 import { Badge } from "@/components/ui/badge";
 
 interface PropsType {
@@ -66,15 +66,6 @@ export function ClaimList({ data }: PropsType) {
         ),
       },
       {
-        accessorKey: "comment",
-        header: "Commentaire",
-        cell: ({ getValue }) => (
-          <span className="block max-w-[260px] truncate">
-            {getValue<string | null>() ?? "—"}
-          </span>
-        ),
-      },
-      {
         id: "status",
         header: "Statut",
         enableHiding: false,
@@ -91,7 +82,7 @@ export function ClaimList({ data }: PropsType) {
       },
       {
         accessorKey: "createdAt",
-        header: "Créée le",
+        header: "Date",
         cell: ({ getValue }) => {
           const d = toDateSafe(getValue<string | null>());
           return (
@@ -99,19 +90,19 @@ export function ClaimList({ data }: PropsType) {
           );
         },
       },
-      // {
-      //   id: "actions",
-      //   header: "Actions",
-      //   enableHiding: false,
-      //   cell: ({ row }) => {
-      //     const claim = row.original;
-      //     return (
-      //       <div className="flex items-center gap-x-2">
-      //         <UpdateClaim Claim={claim} />
-      //       </div>
-      //     );
-      //   },
-      // },
+      {
+        id: "actions",
+        header: "Actions",
+        enableHiding: false,
+        cell: ({ row }) => {
+          const claim = row.original;
+          return (
+            <div className="flex items-center gap-x-2">
+              <UpdateClaim claim={claim} />
+            </div>
+          );
+        },
+      },
     ],
     [],
   );

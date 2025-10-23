@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Role } from "@/features/role/role.type";
 import { CreateRole } from "./_new/form";
 import { UpdateRole } from "./_update/form";
+import { DeleteRole } from "./_delete";
 
 interface PropsType {
   data: PaginatedData<Role>;
@@ -27,11 +28,6 @@ export function RoleList({ data }: PropsType) {
       {
         accessorKey: "name",
         header: "Nom du rôle",
-        cell: ({ getValue }) => <span>{getValue<string>() ?? "—"}</span>,
-      },
-      {
-        accessorKey: "guardName",
-        header: "Guard",
         cell: ({ getValue }) => <span>{getValue<string>() ?? "—"}</span>,
       },
       {
@@ -65,6 +61,7 @@ export function RoleList({ data }: PropsType) {
           return (
             <div className="flex items-center gap-x-2">
               <UpdateRole role={role} />
+              <DeleteRole role={role} />
             </div>
           );
         },

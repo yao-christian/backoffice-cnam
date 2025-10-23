@@ -162,9 +162,9 @@ export function FourthAdminLayout({
             <SidebarTrigger />
             <div className="flex-1" />
             <div className="flex items-center gap-2 sm:gap-4">
-              <Button variant="ghost" size="icon">
+              {/* <Button variant="ghost" size="icon">
                 <Bell className="size-5" />
-              </Button>
+              </Button> */}
 
               <DropdownMenu>
                 {user ? (
@@ -185,10 +185,11 @@ export function FourthAdminLayout({
 
                 <DropdownMenuContent
                   align="start"
-                  className="w-[--radix-dropdown-menu-trigger-width]"
+                  // className="w-[--radix-dropdown-menu-trigger-width]"
+                  className="w-40"
                 >
                   <DropdownMenuItem className="cursor-pointer">
-                    <Link href="/profile">
+                    <Link className="flex items-center" href="/profile">
                       <User className="mr-2 size-4" />
                       Mon profil
                     </Link>
@@ -198,7 +199,7 @@ export function FourthAdminLayout({
                     asChild
                     className="cursor-pointer text-red-600"
                   >
-                    <Link href="/api/auth/logout">
+                    <Link className="flex items-center" href="/api/auth/logout">
                       <LogOut className="mr-2 size-4" />
                       Se déconnecter
                     </Link>

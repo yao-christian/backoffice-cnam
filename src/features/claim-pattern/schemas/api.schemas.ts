@@ -4,6 +4,7 @@ export const ClaimPatternApiResponseSchema = z
   .object({
     id: z.number().catch(0),
     libelle: z.string().nullable().optional().catch("—"),
+    uuid: z.string().nullable().optional().catch("—"),
     status: z.number().nullable().optional().catch(null),
     created_at: z.string().nullable().optional().catch(null),
     updated_at: z.string().nullable().optional().catch(null),
@@ -11,12 +12,14 @@ export const ClaimPatternApiResponseSchema = z
   .transform((item) => ({
     id: item.id ?? 0,
     label: item.libelle ?? "—",
+    uuid: item.libelle ?? "—",
     status: item.status ?? null,
     createdAt: item.created_at ?? null,
     updatedAt: item.updated_at ?? null,
   }))
   .catch({
     id: 0,
+    uuid: "—",
     label: "—",
     status: null,
     createdAt: null,

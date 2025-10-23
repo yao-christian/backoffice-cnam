@@ -29,32 +29,17 @@ export const CreateUserSchema = z
 
 export type CreateUserInput = z.infer<typeof CreateUserSchema>;
 
-export const UpdateUserSchema = z
-  .object({
-    uuid: z.string().nullable().optional(),
-    lastName: z.string().min(1, "Le nom est requis."),
-    firstName: z.string().min(1, "Le prénom est requis."),
-    email: z.string().email("L'adresse email n'est pas valide."),
-    phone: z
-      .string()
-      .min(8, "Le numéro de téléphone est requis.")
-      .regex(/^\d+$/, "Le téléphone doit contenir uniquement des chiffres."),
-    roleId: z.string().uuid("L'identifiant du rôle est invalide."),
-    status: z.boolean().default(true),
-    password: z
-      .string()
-      .optional()
-      .refine((val) => !val || val.length >= 8, {
-        message: "Le mot de passe doit contenir au moins 8 caractères.",
-      }),
-    passwordConfirmation: z.string().optional(),
-  })
-  .refine(
-    (data) => !data.password || data.password === data.passwordConfirmation,
-    {
-      message: "Les mots de passe ne correspondent pas.",
-      path: ["passwordConfirmation"],
-    },
-  );
+export const UpdateUserSchema = z.object({
+  uuid: z.string().nullable().optional(),
+  lastName: z.string().min(1, "Le nom est requis."),
+  firstName: z.string().min(1, "Le prénom est requis."),
+  email: z.string().email("L'adresse email n'est pas valide."),
+  phone: z
+    .string()
+    .min(8, "Le numéro de téléphone est requis.")
+    .regex(/^\d+$/, "Le téléphone doit contenir uniquement des chiffres."),
+  roleId: z.string().uuid("L'identifiant du rôle est invalide."),
+  status: z.boolean().default(true),
+});
 
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;

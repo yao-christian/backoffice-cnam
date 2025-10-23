@@ -7,14 +7,10 @@ import {
 import { customFetch } from "@/components/utils/custom-fetch";
 import { ApiResponse } from "@/types/api";
 
-import { Duplicata } from "./duplicata.type";
-import { formatPaginatedData } from "@/components/utils/pagination";
-import { DuplicataListSchema } from "./schemas/api.schemas";
-import { ApiPaginationSchema } from "@/utils/api-utils";
+import { RoleDetailsApiResponseSchema } from "./schemas/api-role-details.schema";
 
-export async function getDuplicatasWithPagination({ page = 0, perPage = 10 }) {
-  const apiPage = page + 1;
-  const url = `${process.env.API_URL}/api/duplicata/payments?page=${apiPage}&limit=${perPage}`;
+export async function getRoleDetails(uuid: string) {
+  const url = `${process.env.API_URL}/api/role/permissions?uuid=${uuid}`;
 
   try {
     const response = await customFetch(url, { isAuth: true });
@@ -22,7 +18,7 @@ export async function getDuplicatasWithPagination({ page = 0, perPage = 10 }) {
     if (!response.ok) {
       if (response.status === 401) throw new UserNotAuthenticatedError();
       if (response.status === 404)
-        throw new NotFoundError("Liste des duplicatas introuvable.");
+        throw new NotFoundError("Détails introuvable.");
 
       throw HttpError.fromResponse(response);
     }
@@ -41,28 +37,17 @@ export async function getDuplicatasWithPagination({ page = 0, perPage = 10 }) {
     if (responseData.status !== "success") {
       throw new HttpError(
         responseData.message ||
-          "Impossible de récupérer les duplicatas. Veuillez réessayer plus tard.",
+          "Impossible de récupérer les détails. Veuillez réessayer plus tard.",
         422,
         "APPLICATION_ERROR",
       );
     }
 
-    const parsedResponseData = ApiPaginationSchema.parse(responseData.data);
+    const roleDetails = RoleDetailsApiResponseSchema.parse(responseData.data);
 
-    const Duplicatas = DuplicataListSchema.parse(parsedResponseData.data);
-
-    const totalCount = parsedResponseData.total;
-    const totalPages = parsedResponseData.lastPage;
-
-    return formatPaginatedData<Duplicata>({
-      totalCount,
-      totalPages,
-      page,
-      perPage: parsedResponseData.perPage,
-      data: Duplicatas,
-    });
+    return roleDetails;
   } catch (error: any) {
-    console.error("Erreur dans getDuplicatasWithPagination:", error);
+    console.error("Erreur dans getRolesWithPagination:", error);
 
     if (error instanceof HttpError) throw error;
 

@@ -12,8 +12,6 @@ export const updateUserAction = authAction
       const payload = {
         last_name: values.lastName,
         first_name: values.firstName,
-        password: values.password,
-        password_confirmation: values.passwordConfirmation,
         status: values.status,
         phone: values.phone,
         email: values.email,

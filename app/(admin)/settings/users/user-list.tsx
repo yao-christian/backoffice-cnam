@@ -16,6 +16,7 @@ import { CreateUser } from "./_new/form";
 import { User } from "@/features/user/user.type";
 import { UpdateUser } from "./_update/form";
 import { Badge } from "@/components/ui/badge";
+import { DeleteUser } from "./_delete";
 
 interface PropsType {
   data: PaginatedData<User>;
@@ -91,6 +92,7 @@ export function UserList({ data }: PropsType) {
           return (
             <div className="flex items-center gap-x-2">
               <UpdateUser user={user} />
+              <DeleteUser user={user} />
             </div>
           );
         },

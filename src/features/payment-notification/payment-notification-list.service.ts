@@ -7,14 +7,10 @@ import {
 import { customFetch } from "@/components/utils/custom-fetch";
 import { ApiResponse } from "@/types/api";
 
-import {
-  adaptPaymentNotification,
-  ApiPaginationSchema,
-  ApiPaymentNotificationItemSchema,
-} from "./schemas/api.schemas";
-
 import { PaymentNotification } from "./payment-notification.type";
 import { formatPaginatedData } from "@/components/utils/pagination";
+import { ApiPaginationSchema } from "@/utils/api-utils";
+import { PaymentNotificationsListSchema } from "./schemas/api.schemas";
 
 export async function getPaymentNotificationsWithPagination({
   page = 0,
@@ -56,19 +52,18 @@ export async function getPaymentNotificationsWithPagination({
 
     const parsedResponseData = ApiPaginationSchema.parse(responseData.data);
 
-    const PaymentNotifications: PaymentNotification[] =
-      parsedResponseData.data.map((it) =>
-        adaptPaymentNotification(ApiPaymentNotificationItemSchema.parse(it)),
-      );
+    const PaymentNotifications = PaymentNotificationsListSchema.parse(
+      parsedResponseData.data,
+    );
 
     const totalCount = parsedResponseData.total;
-    const totalPages = parsedResponseData.last_page;
+    const totalPages = parsedResponseData.lastPage;
 
     return formatPaginatedData<PaymentNotification>({
       totalCount,
       totalPages,
       page,
-      perPage: parsedResponseData.per_page,
+      perPage: parsedResponseData.perPage,
       data: PaymentNotifications,
     });
   } catch (error: any) {

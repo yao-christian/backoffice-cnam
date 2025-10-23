@@ -29,6 +29,15 @@ import {
   UpdateUserInput,
   UpdateUserSchema,
 } from "@/features/user/schemas/role.schemas";
+import { useRoles } from "@/features/role/role.hook";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function UpdateUser({ user }: { user: User }) {
   const showModal = useModalStore.use.showModal();
@@ -59,6 +68,8 @@ export default function UserForm(props: PropsType) {
   const onError = useModalStore.use.onError();
   const startLoading = useModalStore.use.startLoading();
 
+  const { data: rolesOptions } = useRoles();
+
   const router = useRouter();
 
   const form = useForm<UpdateUserInput>({
@@ -71,8 +82,6 @@ export default function UserForm(props: PropsType) {
       phone: user.phone ?? "",
       roleId: user.roles?.[0]?.uuid ?? undefined,
       status: user.status === 1,
-      password: "",
-      passwordConfirmation: "",
     },
   });
 
@@ -177,33 +186,33 @@ export default function UserForm(props: PropsType) {
           />
 
           {/* Rôle */}
-          {/* <FormField
-             control={form.control}
-             name="roleId"
-             render={({ field }) => (
-               <FormItem>
-                 <FormLabel required>Rôle</FormLabel>
-                 <FormControl>
-                   <Select
-                     value={field.value}
-                     onValueChange={(v) => field.onChange(v)}
-                   >
-                     <SelectTrigger>
-                       <SelectValue placeholder="Sélectionner un rôle" />
-                     </SelectTrigger>
-                     <SelectContent>
-                       {rolesOptions.map((r) => (
-                         <SelectItem key={r.value} value={r.value}>
-                           {r.label}
-                         </SelectItem>
-                       ))}
-                     </SelectContent>
-                   </Select>
-                 </FormControl>
-                 <FormMessage />
-               </FormItem>
-             )}
-           /> */}
+          <FormField
+            control={form.control}
+            name="roleId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel required>Rôle</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => field.onChange(v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un rôle" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rolesOptions?.data?.map((r) => (
+                        <SelectItem key={r.uuid} value={r.uuid!}>
+                          {r.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Statut (Actif) */}
           <FormField
@@ -224,46 +233,6 @@ export default function UserForm(props: PropsType) {
                   />
                 </FormControl>
                 <FormLabel className="m-0">Actif</FormLabel>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Mot de passe */}
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel required>Mot de passe</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Azerty@123"
-                    autoComplete="new-password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Confirmation du mot de passe */}
-          <FormField
-            control={form.control}
-            name="passwordConfirmation"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel required>Confirmation du mot de passe</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Confirmer le mot de passe"
-                    autoComplete="new-password"
-                    {...field}
-                  />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

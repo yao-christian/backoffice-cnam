@@ -13,6 +13,7 @@ import { DataTable, useDataTable } from "@/components/ui/data-table";
 import { buttonVariants } from "@/components/ui/button";
 import { PaymentNotification } from "@/features/payment-notification/payment-notification.type";
 import { formatAmount } from "@/utils/number-utils";
+import { formatDateWithHour } from "@/lib/date";
 
 interface PropsType {
   data: PaginatedData<PaymentNotification>;
@@ -29,7 +30,7 @@ export function SaleList({ data }: PropsType) {
         header: "Date",
         cell: ({ row }) => {
           const n = row.original;
-          // return formatDateWithHour(n.createdAt);
+          return formatDateWithHour(new Date(n.createdAt));
         },
       },
       {

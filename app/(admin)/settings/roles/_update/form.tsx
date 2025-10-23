@@ -32,6 +32,23 @@ import {
 } from "@/features/role/schemas/role.schemas";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { useRoleDetails } from "@/features/role/role.hook";
+
+type Permissions = Record<string, boolean>;
+
+export function extractTruePermissions(perm?: Permissions | null): string[] {
+  if (!perm) return [];
+
+  if (!perm || typeof perm !== "object") return [];
+
+  const data = Object.entries(perm)
+    .filter(([_, value]) => value === true)
+    .map(([key]) => key);
+
+  console.log("111, data", data);
+
+  return data;
+}
 
 export function UpdateRole({ role }: { role: Role }) {
   const showModal = useModalStore.use.showModal();
@@ -61,6 +78,8 @@ export default function RoleForm(props: PropsType) {
   const onError = useModalStore.use.onError();
   const startLoading = useModalStore.use.startLoading();
 
+  const { data: roleDetails } = useRoleDetails(role.uuid ?? "");
+
   const router = useRouter();
 
   const form = useForm<UpdateRoleInput>({
@@ -70,7 +89,7 @@ export default function RoleForm(props: PropsType) {
       name: role.name ?? "",
       description: role.description ?? "",
       status: role.status === 1,
-      permissions: [],
+      permissions: extractTruePermissions(roleDetails?.perm),
     },
   });
 
@@ -131,6 +150,18 @@ export default function RoleForm(props: PropsType) {
   useEffect(() => {
     setConfirmAction(form.handleSubmit(onSubmit));
   }, [form.getValues, setConfirmAction]);
+
+  useEffect(() => {
+    if (!roleDetails) return;
+
+    form.reset({
+      uuid: role.uuid,
+      name: role.name ?? "",
+      description: role.description ?? "",
+      status: role.status === 1,
+      permissions: extractTruePermissions(roleDetails.perm),
+    });
+  }, [roleDetails, role, form]);
 
   return (
     <Form {...form}>

@@ -14,6 +14,7 @@ import { ClaimPattern } from "@/features/claim-pattern/claim-pattern.type";
 import { CreateClaimPattern } from "./_new/form";
 import { UpdateClaimPattern } from "./_update/form";
 import { formatDateWithHour } from "@/lib/date";
+import { DeleteClaimPattern } from "./_delete";
 
 interface PropsType {
   data: PaginatedData<ClaimPattern>;
@@ -77,6 +78,7 @@ export function ClaimPatternList({ data }: PropsType) {
           return (
             <div className="flex items-center gap-x-2">
               <UpdateClaimPattern claimPattern={claimPattern} />
+              <DeleteClaimPattern claimPattern={claimPattern} />
             </div>
           );
         },

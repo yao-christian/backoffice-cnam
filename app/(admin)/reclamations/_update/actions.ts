@@ -3,25 +3,18 @@
 import { authAction } from "@/lib/safe-action";
 import { HttpError } from "@/utils/errors";
 import { customFetch } from "@/components/utils/custom-fetch";
-import { UpdateUserSchema } from "@/features/user/schemas/role.schemas";
+import { UpdateClaimSchema } from "@/features/claim/schemas/claim.schema";
 
-export const updateUserAction = authAction
-  .schema(UpdateUserSchema)
+export const updateClaimAction = authAction
+  .schema(UpdateClaimSchema)
   .action(async ({ parsedInput: values }) => {
     try {
       const payload = {
-        last_name: values.lastName,
-        first_name: values.firstName,
-        password: values.password,
-        password_confirmation: values.passwordConfirmation,
-        status: values.status,
-        phone: values.phone,
-        email: values.email,
-        role_id: values.roleId,
+        ...values,
+        status_id: values.status,
       };
-
       const res = await customFetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user/update/${values.uuid}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/claim/update/${values.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -36,7 +29,7 @@ export const updateUserAction = authAction
 
       return "Modification éffectuée avec succès.";
     } catch (e) {
-      console.error("update service error:", e);
+      console.error("update role error:", e);
       throw e;
     }
   });

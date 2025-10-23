@@ -41,7 +41,7 @@ export const getRoleDetails = async (uuid: string) => {
   const status = body?.status as string | undefined;
 
   if (status === "success") {
-    return body.data as PaginatedData<RoleDetails>;
+    return body.data as RoleDetails;
   }
 
   const err = ApiErrorEnvelopeSchema.safeParse(body);

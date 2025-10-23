@@ -1,4 +1,6 @@
 import { z } from "zod";
-import { PaymentNotificationSchema } from "./schemas/api.schemas";
+import { PaymentNotificationApiResponseSchema } from "./schemas/api.schemas";
 
-export type PaymentNotification = z.infer<typeof PaymentNotificationSchema>;
+export type PaymentNotification = z.infer<
+  typeof PaymentNotificationApiResponseSchema
+>;

@@ -26,10 +26,12 @@ import { createUserAction } from "./actions";
 import { useModalStore } from "@/components/global-modal/store";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "react-toastify";
+
 import {
   CreateUserInput,
   CreateUserSchema,
 } from "@/features/user/schemas/role.schemas";
+
 import {
   Select,
   SelectContent,
@@ -37,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRoles } from "@/features/role/role.hook";
 
 export function CreateUser() {
   const showModal = useModalStore.use.showModal();
@@ -74,6 +77,8 @@ function SellerForm(props: PropsType) {
   const onError = useModalStore.use.onError();
   const startLoading = useModalStore.use.startLoading();
   const closeModal = useModalStore.use.closeModal();
+
+  const { data: rolesOptions } = useRoles();
 
   const { className } = props;
 
@@ -187,7 +192,7 @@ function SellerForm(props: PropsType) {
           />
 
           {/* Rôle */}
-          {/* <FormField
+          <FormField
             control={form.control}
             name="roleId"
             render={({ field }) => (
@@ -202,9 +207,9 @@ function SellerForm(props: PropsType) {
                       <SelectValue placeholder="Sélectionner un rôle" />
                     </SelectTrigger>
                     <SelectContent>
-                      {rolesOptions.map((r) => (
-                        <SelectItem key={r.value} value={r.value}>
-                          {r.label}
+                      {rolesOptions?.data?.map((r) => (
+                        <SelectItem key={r.uuid} value={r.uuid!}>
+                          {r.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -213,27 +218,35 @@ function SellerForm(props: PropsType) {
                 <FormMessage />
               </FormItem>
             )}
-          /> */}
+          />
 
-          {/* Statut (Actif) */}
+          {/* Statut */}
           <FormField
             control={form.control}
             name="status"
-            render={() => (
-              <FormItem className="flex items-center gap-3">
-                <FormControl>
-                  <Checkbox
-                    checked={statusChecked}
-                    onCheckedChange={(v) => {
-                      const next = Boolean(v);
-                      // on autorise status à être bool côté form pour UX
-                      form.setValue("status", next as unknown as any, {
-                        shouldValidate: true,
-                      });
-                    }}
-                  />
-                </FormControl>
-                <FormLabel className="m-0">Actif</FormLabel>
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel required>Statut</FormLabel>
+                <Select
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  value={field.value?.toString() ?? ""}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez un statut" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value.toString()}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -283,3 +296,11 @@ function SellerForm(props: PropsType) {
     </Form>
   );
 }
+
+const statusOptions = [
+  { value: 0, label: "En cours" }, // IN_PROGRESS
+  { value: 1, label: "En attente" }, // PENDING
+  { value: 2, label: "Résolue" }, // RESOLVED
+  { value: 3, label: "Fermée" }, // CLOSED
+  { value: 7, label: "Initiée" }, // INITIATED
+];

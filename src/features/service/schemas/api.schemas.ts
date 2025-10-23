@@ -14,6 +14,7 @@ export const ApiServiceItemSchema = z.object({
   identifiant: z.string().nullable(),
   prepaid: z.boolean(),
   uuid: z.string().nullable(),
+  statut: z.boolean().nullable().optional(),
 });
 
 export const ApiPaginationSchema = z.object({
@@ -34,6 +35,7 @@ export const ServiceSchema = z.object({
   apiSecret: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  status: z.boolean().nullable().optional(),
   code: z.string().nullable(),
   key: z.string().nullable(),
   identifiant: z.string().nullable(),
@@ -56,6 +58,7 @@ export function adaptService(
     createdAt: item.created_at,
     updatedAt: item.updated_at,
     code: item.code,
+    status: item.statut,
     key: item.key,
     identifiant: item.identifiant,
     prepaid: item.prepaid,
